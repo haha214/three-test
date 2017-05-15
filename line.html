@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="lib/three.js"></script>
+    </head>
+    <body>
+    </body>
+    <script>
+        (function(){
+            var scene,camera,renderer;
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(50,window.innerWidth/window.innerHeight);
+            camera.position.set(3,3,3);
+            camera.lookAt(new THREE.Vector3(0,0,0));
+            scene.add(camera);
+
+            function pointsGenerator(radius,num,y){
+                var points = [];
+                var θ = 2 * Math.PI / num;
+                for(var i = 0; i < num ; i++){
+                    var x = radius * Math.cos(θ * i);
+                    var z =  radius * Math.sin(θ * i);
+                    var point = new THREE.Vector3(x,y,z);
+                    points.push(point);
+                }
+                return points;
+            }
+
+            var lineMaterial = new THREE.LineDashedMaterial({color: 'black', linewidth: 1});
+
+            var t = 0;
+            var radius = 2;
+            var division = 64;
+            var linesToRender = [];
+            var bottomPoints = pointsGenerator(radius,division,0);
+            var topPoints = pointsGenerator(radius,division,0.1);
+
+            renderer = new THREE.WebGLRenderer({antialias:true , alpha:true});
+            renderer.setSize(window.innerWidth,window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            for(var i= 0 ; i< division ;i++){
+                var lineGeometry = new THREE.Geometry();
+                lineGeometry.vertices.push(bottomPoints[i]);
+                lineGeometry.vertices.push(topPoints[i]);
+                var line = new THREE.Line(lineGeometry,lineMaterial);
+                linesToRender.push(line);
+            }
+
+            for(var j=0;j<linesToRender.length;j++){
+                scene.add(linesToRender[j]);
+            }
+
+            function animate(){
+                t += 0.1;
+                for (var i = 0; i< division;i++){
+                    var unit = 8 * Math.PI / division;
+                    if ((t + unit * i) / Math.PI > i) {
+                        linesToRender[i].position.y = Math.sin(t + unit * i) ;
+                    }
+                }
+
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        })()
+    </script>
+</html>
