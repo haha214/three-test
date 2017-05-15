@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="lib/three.js"></script>
+    </head>
+    <body>
+    </body>
+    <script>
+        (function(){
+            var scene,camera,renderer;
+            scene =  new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(50,window.innerWidth/window.innerHeight);
+            camera.position.set(0,0,3);
+            camera.lookAt(new THREE.Vector3(0,0,0));
+            scene.add(camera);
+
+            var material = new THREE.PointsMaterial({color: 'lightblue',size: .1});
+            function pointsGenerator(num){
+                var geometry = new THREE.Geometry();
+                for(var i = 0; i< num; i++){
+                    var pX = (Math.random() * 5) - 2.5;
+                    var pY = (Math.random() * 3) - 1.5;
+                    var pZ = (Math.random() * 4) - 2;
+                    var vector = new THREE.Vector3(pX,pY,pZ);
+                    geometry.vertices.push(vector);
+                }
+                return new THREE.Points(geometry,material);
+            }
+
+            var rain = pointsGenerator(100);
+            rain.position.set(0,0,0);
+            scene.add(rain);
+
+            var additionRain = pointsGenerator(100);
+            additionRain.position.set(0,3,0);
+            scene.add(additionRain);
+
+            renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+            renderer.setSize(window.innerWidth,window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            function animate(){
+                rain.position.y -= 0.1;
+                if (rain.position.y <= -3) {
+                    scene.remove(rain);
+                    rain = pointsGenerator(100);
+                    rain.position.set(0,3,0);
+                    scene.add(rain);
+                }
+
+                additionRain.position.y -= 0.1;
+                if (additionRain.position.y <= -3) {
+                    scene.remove(additionRain);
+                    additionRain = pointsGenerator(100);
+                    additionRain.position.set(0,3,0);
+                    scene.add(additionRain);
+                }
+
+                requestAnimationFrame(animate);
+                renderer.render(scene,camera);
+            }
+
+            animate();
+        })();
+    </script>
+</html>
